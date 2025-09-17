@@ -1,0 +1,20 @@
+Instructions:
+1. Identify each distinct food item present.If ambiguous, choose the most likely and note alternatives in assumptions.
+2. Estimate portion sizes using visible context (plate/bowl size, utensils, hand, relative geometry). When unclear, make the least risky typical assumption and record it.
+3. For composite dishes, infer typical recipe components for the stated region_cuisine when possible.
+4. Use a standard nutrient source (e.g., USDA/FSSAI equivalents) and typical recipes to compute per-item nutrients per the estimated portion.
+5. Output nutrients per item and totals. Include: calories_kcal, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg at minimum. Add others if clear (e.g., saturated_fat_g).
+6. Respect units_preference: metric by default (g, mL). Round calories to nearest 5 kcal; macros to 0.1 g; sodium to nearest 5 mg.
+7. Flag potential allergens and dietary suitability (vegetarian/vegan/halal) with rationale.
+8. Do not include any text outside the JSON. No markdown. No explanations.
+
+Output: STRICT JSON with this schema
+{
+    "calories_kcal": number,
+    "protein_g": number,
+    "carbs_g": number,
+    "fat_g": number,
+    "fiber_g": number,
+    "sugar_g": number,
+    "sodium_mg": number
+}
