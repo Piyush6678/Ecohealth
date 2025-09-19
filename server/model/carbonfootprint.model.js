@@ -1,35 +1,35 @@
-// models/CarbonFootprintEntry.js
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+import { Schema, model } from 'mongoose';
 
-const carbonFootprintEntrySchema = new Schema({
-    // Reference to the User model
-    userId: {
+const carbonSchema = new Schema({
+    user: {
         type: Schema.Types.ObjectId,
-        ref: 'User', // This creates the link to the User schema
+        ref: 'User',
+        required: true
+    },
+    category: {
+        type: String,
         required: true,
-        index: true // Adds an index for faster queries by user
+        enum: ['driving', 'flying', 'energy', 'food'] // Matches frontend config
     },
     activity: {
         type: String,
-        required: true, // e.g., 'driving', 'electricity', 'flying'
-        trim: true
+        required: true
     },
-    value: {
+    userInput: {
         type: Number,
-        required: true // e.g., 50 (for 50 km)
+        required: true
     },
     unit: {
         type: String,
-        required: true // e.g., 'km', 'kWh'
+        required: true
     },
-    carbonFootprint: {
+    carbonFootprintKg: {
         type: Number,
-        required: true // The calculated CO2e value
+        required: true
     }
 }, {
-    // Automatically adds createdAt and updatedAt timestamps
     timestamps: true
 });
 
-module.exports = mongoose.model('CarbonFootprintEntry', carbonFootprintEntrySchema);
+const carbonModel = model("CarbonEntry", carbonSchema);
+export default carbonModel;

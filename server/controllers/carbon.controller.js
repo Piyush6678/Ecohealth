@@ -1,3 +1,6 @@
+import carbonModel from "../model/carbonfootprint.model.js";
+import userModel from "../model/user.model.js";
+
 /**
  * Note: These are example emission factors. In a real-world application,
  * these would be more complex and might be sourced from a dedicated API or a comprehensive database.
@@ -56,11 +59,116 @@ const calculateFootprint = (req, res) => {
     res.status(200).json({ carbonFootprint: carbonFootprint });
 }
 
-const addFootprint = (req, res) => { 
-    // This function is not implemented as per your original code.
-    res.status(501).json({ message: 'Not Implemented' });
-}
 
-export { calculateFootprint, addFootprint };
 
- 
+/**
+ * @description Helper function to check if two dates fall within the same week (Sunday - Saturday).
+ */
+const isSameWeek = (date1, date2) => {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    d1.setDate(d1.getDate() - d1.getDay());
+    d2.setDate(d2.getDate() - d2.getDay());
+    d1.setHours(0, 0, 0, 0);
+    d2.setHours(0, 0, 0, 0);
+    return d1.getTime() === d2.getTime();
+};
+
+/**
+ * @description Add a new carbon entry and update the user's daily progress, with weekly resets.
+ * @route POST /api/v1/carbon
+ * @access Private
+ */
+ const addCarbonEntry = async (req, res) => {
+    try {
+        const { category, activity, value, unit, carbonFootprint } = req.body;
+        const userId = req.user;
+
+        // --- 1. Validation ---
+        if (!category || !activity || !value || !unit || carbonFootprint === undefined) {
+            return res.status(400).json({ success: false, message: 'Missing required fields for carbon entry.' });
+        }
+
+        // --- 2. Save the Detailed Carbon Entry ---
+        const newCarbonEntry = new carbonModel({
+            user: userId,
+            category,
+            activity,
+            userInput: value,
+            unit,
+            carbonFootprintKg: carbonFootprint
+        });
+        await newCarbonEntry.save();
+
+        // --- 3. Fetch User and Check for Weekly Reset ---
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+        const now = new Date();
+        const needsReset = !isSameWeek(user.lastUpdated, now);
+        const currentDayIndex = now.getDay(); // Sunday=0, Friday=5
+
+        // --- 4. Prepare and Execute Conditional Update on User Model ---
+        let updateQuery;
+
+        if (needsReset) {
+            // It's a new week, reset the array and place the new value.
+            const newWeeklyCarbon = [0, 0, 0, 0, 0, 0, 0];
+            newWeeklyCarbon[currentDayIndex] = carbonFootprint;
+            updateQuery = {
+                $set: {
+                    weeklyCarbonFootprint: newWeeklyCarbon,
+                    lastUpdated: now
+                }
+            };
+        } else {
+            // It's the same week, just increment today's value.
+            updateQuery = {
+                $inc: {
+                    [`weeklyCarbonFootprint.${currentDayIndex}`]: carbonFootprint,
+                },
+                $set: { lastUpdated: now }
+            };
+        }
+
+        await userModel.findByIdAndUpdate(userId, updateQuery);
+
+        // --- 5. Send Success Response ---
+        res.status(201).json({
+            success: true,
+            message: 'Carbon footprint saved and progress updated!',
+            entry: newCarbonEntry
+        });
+
+    } catch (error) {
+        console.error('Error in addCarbonEntry controller:', error);
+        res.status(500).json({ success: false, message: 'Server error while saving carbon entry.' });
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export { calculateFootprint, addCarbonEntry  };
+
+  

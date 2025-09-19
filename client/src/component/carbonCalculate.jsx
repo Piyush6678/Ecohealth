@@ -49,7 +49,7 @@ const activityConfig = {
 };
 
 const CarbonFootprintCalculator = () => {
-    // State to manage user inputs and the calculated result
+    // State for the form and calculation result
     const [category, setCategory] = useState('');
     const [activity, setActivity] = useState('');
     const [value, setValue] = useState('');
@@ -57,46 +57,89 @@ const CarbonFootprintCalculator = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // State for the save-to-progress functionality
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState('');
+    const [saveError, setSaveError] = useState('');
+
+    // Resets all feedback messages when the form changes
+    const resetFeedback = () => {
+        setCarbonFootprint(null);
+        setError('');
+        setSaveSuccess('');
+        setSaveError('');
+    };
+
     const handleCategoryChange = (e) => {
         setCategory(e.target.value);
-        setActivity(''); // Reset activity when category changes
+        setActivity(''); // Reset dependent fields
         setValue('');
-        setCarbonFootprint(null);
+        resetFeedback();
     };
     
     const handleActivityChange = (e) => {
         setActivity(e.target.value);
-        setCarbonFootprint(null);
-    }
+        resetFeedback();
+    };
 
-    // Handle form submission
+    // Handles the initial calculation
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setCarbonFootprint(null);
-        setError('');
+        resetFeedback();
 
         try {
+            // NOTE: Update this URL if your calculation endpoint is different
             const response = await axios.post('http://localhost:5000/api/v1/carbon/calculate', {
                 activity: activity,
                 value: parseFloat(value),
             });
             setCarbonFootprint(response.data.carbonFootprint);
         } catch (err) {
-            if (err.response) {
-                setError(err.response.data.message || 'Error calculating footprint.');
-            } else if (err.request) {
-                setError('No response from server. Please check your backend connection.');
-            } else {
-                setError('An unexpected error occurred.');
-            }
+            setError(err.response?.data?.message || 'Error calculating footprint.');
             console.error('API Error:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const isFormValid = category && activity && value && !isNaN(parseFloat(value)) && parseFloat(value) >= 0;
+    // Handles saving the result to the user's profile
+    const handleSaveToProgress = async () => {
+        if (carbonFootprint === null) return;
+
+        setIsSaving(true);
+        setSaveSuccess('');
+        setSaveError('');
+        
+        try {
+            // Assumes you store the auth token in localStorage after login
+            const token = localStorage.getItem('authorization');
+            if (!token) {
+                throw new Error("Authentication token not found. Please log in.");
+            }
+
+            await axios.post('http://localhost:5000/api/v1/carbon/addcO2', 
+                {
+                    category,
+                    activity,
+                    value: parseFloat(value),
+                    unit: currentUnit,
+                    carbonFootprint
+                },
+                {
+                    headers: { 'authorization': `${token}` }
+                }
+            );
+            setSaveSuccess('Successfully added to your daily progress!');
+        } catch (err) {
+            setSaveError(err.response?.data?.message || 'Could not save progress.');
+            console.error('Save Error:', err);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const isFormValid = category && activity && value && !isNaN(parseFloat(value)) && parseFloat(value) > 0;
     const currentUnit = activityConfig[category]?.activities[activity]?.unit || 'Units';
 
     return (
@@ -107,13 +150,9 @@ const CarbonFootprintCalculator = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Category Selection */}
                     <div>
-                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                            Category
-                        </label>
+                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                         <select
-                            id="category"
-                            value={category}
-                            onChange={handleCategoryChange}
+                            id="category" value={category} onChange={handleCategoryChange}
                             className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md shadow-sm"
                             required
                         >
@@ -127,13 +166,9 @@ const CarbonFootprintCalculator = () => {
                     {/* Activity Selection (Conditional) */}
                     {category && (
                         <div>
-                            <label htmlFor="activity" className="block text-sm font-medium text-gray-700 mb-1">
-                                Specific Activity
-                            </label>
+                            <label htmlFor="activity" className="block text-sm font-medium text-gray-700 mb-1">Specific Activity</label>
                             <select
-                                id="activity"
-                                value={activity}
-                                onChange={handleActivityChange}
+                                id="activity" value={activity} onChange={handleActivityChange}
                                 className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md shadow-sm"
                                 required
                             >
@@ -148,19 +183,12 @@ const CarbonFootprintCalculator = () => {
                     {/* Value Input (Conditional) */}
                     {activity && (
                         <div>
-                             <label htmlFor="value" className="block text-sm font-medium text-gray-700 mb-1">
-                                Amount ({currentUnit})
-                            </label>
+                             <label htmlFor="value" className="block text-sm font-medium text-gray-700 mb-1">Amount ({currentUnit})</label>
                             <input
-                                type="number"
-                                id="value"
-                                value={value}
-                                onChange={(e) => setValue(e.target.value)}
+                                type="number" id="value" value={value} onChange={(e) => setValue(e.target.value)}
                                 placeholder={`Enter amount in ${currentUnit}...`}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                                min="0"
-                                step="any"
-                                required
+                                min="0" step="any" required
                             />
                         </div>
                     )}
@@ -169,7 +197,7 @@ const CarbonFootprintCalculator = () => {
                     <button
                         type="submit"
                         className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors duration-200 ${
-                            isFormValid ? 'bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500' : 'bg-gray-400 cursor-not-allowed'
+                            isFormValid ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'
                         }`}
                         disabled={!isFormValid || loading}
                     >
@@ -177,18 +205,30 @@ const CarbonFootprintCalculator = () => {
                     </button>
                 </form>
 
-                {/* Display Area for Result or Error */}
+                {/* Display Area for Result, Error, and Save Button */}
                 <div className="mt-6 text-center">
-                    {error && (
-                        <p className="text-red-600 text-sm font-medium bg-red-50 p-3 rounded-md">{error}</p>
-                    )}
+                    {error && <p className="text-red-600 text-sm font-medium bg-red-50 p-3 rounded-md">{error}</p>}
+                    
                     {carbonFootprint !== null && (
-                         <div className="bg-green-50 p-4 rounded-lg">
+                        <div className="bg-green-50 p-4 rounded-lg animate-fade-in">
                             <p className="text-lg font-medium text-gray-700">Your estimated footprint is:</p>
                             <p className="text-3xl font-bold text-green-700">
-                               {carbonFootprint.toFixed(2)} kg CO₂e
+                                {carbonFootprint.toFixed(2)} kg CO₂e
                             </p>
-                         </div>
+                            
+                            {/* "Add to Progress" Button */}
+                            <button
+                                onClick={handleSaveToProgress}
+                                className="mt-4 w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                disabled={isSaving || !!saveSuccess} // Disable if saving or if already succeeded
+                            >
+                                {isSaving ? 'Saving...' : (saveSuccess ? 'Saved!' : 'Add to Progress')}
+                            </button>
+                            
+                            {/* Feedback messages for the save action */}
+                            {saveSuccess && <p className="text-green-600 text-sm mt-2">{saveSuccess}</p>}
+                            {saveError && <p className="text-red-600 text-sm mt-2">{saveError}</p>}
+                        </div>
                     )}
                 </div>
             </div>
@@ -197,3 +237,4 @@ const CarbonFootprintCalculator = () => {
 };
 
 export default CarbonFootprintCalculator;
+
