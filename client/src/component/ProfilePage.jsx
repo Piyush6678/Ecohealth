@@ -69,6 +69,8 @@ export default function ProfilePage({ user, setUser }) { // Destructure setUser 
       const errorMessage = err.response?.data?.message || err.message || "An unexpected error occurred.";
       setApiStatus({ loading: false, error: errorMessage, success: null });
       console.error("Failed to save goals:", err);
+    } finally{
+setUser(user);
     }
   };
 

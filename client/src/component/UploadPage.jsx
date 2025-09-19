@@ -198,7 +198,7 @@ export default function NutritionScanner() {
               type="text"
               value={foodName}
               onChange={(e) => setFoodName(e.target.value)}
-              placeholder="e.g., 'A bowl of oatmeal with berries'"
+              placeholder='A bowl of oatmeal with berries'
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
           />
           <button

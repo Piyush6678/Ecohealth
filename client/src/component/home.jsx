@@ -79,70 +79,103 @@ export default function Home({ user }) {
   // Then, ensure your tailwind.config.js extends the 'sans' font family.
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
-      {/* Hero Section */}
-      <section className="text-center py-20 px-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-          Welcome, {user?.name || "Guest"}!
-        </h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-2">
-          Your personal dashboard for tracking health and environmental impact.
+    <div className="bg-white px-4 py-6">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-green-600 text-4xl font-bold mt-4">Meet EcoHealth.</h1>
+        <h2 className="text-black text-3xl sm:text-4xl font-bold mb-2">
+          Health Made Easy <br /> With AI.
+        </h2>
+        <p className="text-center font-semibold font-serif text-lg">
+          “Eat right, live light — on your body and the planet.”
         </p>
-        <p className="text-sm text-slate-500">
-          Logged in as <span className="font-medium text-slate-600">{user?.email}</span>
-        </p>
-      </section>
+      </div>
 
-      {/* Core Features Section */}
-      <section className="py-20 bg-white px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-800">Core Features</h2>
-            <p className="text-slate-600 mt-2">Everything you need to build healthier habits.</p>
+      {/* Cards Container */}
+      <div className="space-y-8 flex flex-col items-center">
+        
+        {/* Smart Nutrition Analysis */}
+        <div className="flex flex-col md:flex-row bg-slate-200 rounded-xl shadow-lg p-4 gap-4 transition-transform hover:scale-105 duration-300 max-w-4xl w-full">
+          <div className="flex-1 bg-slate-300 text-white rounded-lg p-6">
+            <h3 className="text-xl font-bold text-slate-800 mb-2">
+              Smart Nutrition Analysis
+            </h3>
+            <p className="text-slate-600 mt-6 font-medium">
+              📸 Upload a photo of your meal and instantly get a detailed breakdown of calories, proteins, carbs, fats, and essential vitamins — making healthy eating easier than ever.
+            </p>
           </div>
 
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            
-            {/* Card 1: Nutrition Analysis */}
-            <div className="flex flex-col items-center text-center p-8 bg-slate-50 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-              <NutritionIcon />
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Smart Nutrition Analysis</h3>
-              <p className="text-slate-600 mb-6">
-                Instantly get a detailed nutritional breakdown of your meals. Just upload a photo or enter the food's name to track your calories, macros, and vitamins with ease.
-              </p>
-              <button className="mt-auto w-full bg-teal-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-colors duration-300">
-                Analyze Your Food
-              </button>
+          <div className="flex-1 flex flex-col items-center justify-center space-y-3">
+            <div className="bg-white w-full h-40 rounded-lg flex items-center justify-center overflow-hidden">
+          <img
+                src="analyse.jpg"
+                alt="analysis"
+                className="object-contain w-full h-full  rounded-lg transform transition duration-500 ease-in-out bg-slate-200 hover:scale-110"
+              />
             </div>
 
-            {/* Card 2: Carbon Footprint Tracker */}
-            <div className="flex flex-col items-center text-center p-8 bg-slate-50 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-              <CarbonFootprintIcon />
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Track Your Carbon Footprint</h3>
-              <p className="text-slate-600 mb-6">
-                Understand your environmental impact by logging daily activities like travel, energy use, and diet. Our tracker makes it simple to see where you can make a difference.
-              </p>
-              <button className="mt-auto w-full bg-teal-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-colors duration-300">
-                Start Tracking
-              </button>
-            </div>
-
-            {/* Card 3: Progress & Analytics */}
-            <div className="flex flex-col items-center text-center p-8 bg-slate-50 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-              <ProgressIcon />
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Visualize Your Progress</h3>
-              <p className="text-slate-600 mb-6">
-                Stay motivated with a personalized dashboard. See your weekly progress on both calorie and carbon goals to build healthier, more sustainable habits.
-              </p>
-              <button className="mt-auto w-full bg-teal-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition-colors duration-300">
-                View Your Dashboard
-              </button>
-            </div>
-            
+            <button
+             
+              className="cursor-pointer bg-green-400 text-black font-semibold px-4 py-2 rounded-lg shadow hover:bg-green-500 transition duration-300"
+            >
+              Analyse Your Food
+            </button>
           </div>
         </div>
-      </section>
+
+        {/* Visualize Your Progress */}
+        <div className="flex flex-col md:flex-row bg-slate-200 rounded-xl shadow-lg p-4 gap-4 transition-transform hover:scale-105 duration-300 max-w-4xl w-full">
+          <div className="flex-1 bg-slate-300 text-white rounded-lg p-6">
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Visualize Your Progress</h3>
+            <p className="text-slate-600 mb-6">
+              🌱 Stay motivated with a personalized dashboard that tracks your weekly calorie and carbon goals. Visual progress charts make it easy to build healthier and more sustainable habits over time.
+            </p>
+          </div>
+
+          <div className="flex-1 flex flex-col gap-2 items-center justify-center">
+            <div className="w-full h-40 rounded-lg flex items-center justify-center overflow-hidden">
+              <img
+                src="dashboard.jpg"
+                alt="analysis"
+                className="object-contain w-full h-full rounded-lg transform transition duration-500 ease-in-out hover:scale-110"
+              />
+            </div>
+              <button
+             
+              className="cursor-pointer bg-green-400 text-black font-semibold px-4 py-2 rounded-lg shadow hover:bg-green-500 transition duration-300"
+            >
+              Visualize Your Progress
+            </button>
+          </div>
+        </div>
+
+        {/* Track Your Carbon Footprint */}
+        <div className="flex flex-col md:flex-row bg-slate-200 rounded-xl shadow-lg p-4 gap-4 transition-transform hover:scale-105 duration-300 max-w-4xl w-full">
+          <div className="flex-1 bg-slate-300 text-white rounded-lg p-6">
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Track Your Carbon Footprint</h3>
+            <p className="text-slate-600 mb-6">
+              🌍 Log your daily activities like travel, energy use, and diet to understand your environmental impact. The tracker highlights how your choices add up and shows where small changes can make a meaningful difference.
+            </p>
+          </div>
+
+          <div className="flex-1 flex gap-2 flex-col items-center justify-center">
+            <div className="w-full h-40 rounded-lg flex items-center justify-center overflow-hidden">
+              <img
+                src="carbon.jpg"
+                alt="carbon footprint"
+                className="object-contain w-full h-full rounded-lg transform transition duration-500 ease-in-out hover:scale-110"
+              />
+            </div>
+               <button
+             
+              className="cursor-pointer bg-green-400 text-black font-semibold px-4 py-2 rounded-lg shadow hover:bg-green-500 transition duration-300"
+            >
+              Calculate Your Carbon Footprint 
+            </button>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
