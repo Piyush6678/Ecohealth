@@ -1,12 +1,16 @@
 import { Router } from "express";
-import { login, register } from "../controllers/user.controller.js";
+import { login, register, updateUserGoals } from "../controllers/user.controller.js";
 import mealRouter from "./meal.routes.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 const userRouter=Router()
 
 
 
 userRouter.route("/register").post(register)// add weiight and goals 
 userRouter.route("/login").post(login)
+userRouter.route("/goals").put( authMiddleware ,updateUserGoals)
+
+
 userRouter.use("/meal",mealRouter)
 //logout
 
@@ -15,7 +19,7 @@ userRouter.use("/meal",mealRouter)
 // get avg calories 
 // get avg protien  
 // get avg carbs
-// get daily calorie intake   
+// get daily calorie intake    
 
 //carobon - get activity 
 

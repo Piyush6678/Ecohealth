@@ -1,18 +1,23 @@
 import React, { useState } from "react";
-
+import axios from"axios"
 export default function LoginPage({ onBack, onSwitch, onSuccess }) {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit =async (e) => {
     e.preventDefault();
-try{ const response =await axios.post("http://localhost:5000/api/v1/user/register",{
-    username:name,
+try{ const response =await axios.post("http://localhost:5000/api/v1/user/login",{
+    
     email,password
   })
 
-alert("You have been signed up")
-   const jwt=response.data.token
- localStorage.setItem("authorization",jwt)  
+
+const { token, user } = response.data;
+localStorage.setItem("authorization", token);
+
+alert("You have logged in successfully");
+const name=user.username
+onSuccess({ name, email: user.email });
     
     
     
@@ -36,7 +41,7 @@ alert("You have been signed up")
             className="p-2 border rounded"
             required
           />
-          <input type="password" placeholder="Password" className="p-2 border rounded" required />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}  className="p-2 border rounded" required />
           <button type="submit" className="bg-green-600 text-white py-2 rounded hover:bg-green-700">
             Login
           </button>

@@ -25,11 +25,18 @@ const userSchema = new Schema({
         type: [Number],
         default: [0, 0, 0, 0, 0, 0, 0] // 7 elements, one for each day
     },
+   goals: {
+    calorieTarget: { type: Number, default: 2000 },
+    proteinTarget: { type: Number, default: 150 },
+    carbonLimit: { type: Number, default: 5 },
+  },
   // Optionally, store day names for clarity
   lastUpdated: {
     type: Date,
     default: Date.now
   }
+},{
+  timestamps:true
 });
 userSchema.pre("save",async function (next){
 if(!this.isModified("password")){
@@ -43,7 +50,7 @@ userSchema.methods={
             id:this._id
         },process.env.JWT_SECRET|| "aiufhvhbauvauv")
     },
-    comparePassword:async (password)=>{
+    comparePassword:async function(password){
        return await  bcrypt.compare(password,this.password)
     },
 

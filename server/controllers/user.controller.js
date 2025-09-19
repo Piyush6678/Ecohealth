@@ -31,15 +31,17 @@ res.status(200).json({
 
 const login=async(req,res,next)=>{
  try{   const {email,password}=req.body;
-if(!fullname ||! email || !password){
+if(! email || !password){
     return next( new AppError("all fields are reuired",400))
 }
 const user=await userModel.findOne({email}).select("+password");
-if(!user || !user.comparePassword(password)){
-    return next (new AppError("email or password does not match ",40))
+const isMatch = await user.comparePassword(password);
+if (!user || !isMatch) {
+  return next(new AppError("email or password does not match", 400));
 }
+
 const token=await user.generateJWTToken()
-user.password=undefined();
+user.password=undefined;
 
 res.status(200).json({
     success:true,
@@ -50,4 +52,51 @@ res.status(200).json({
     return next(new AppError(e.message,500));
 }
 }
-export{register,login}
+
+
+
+
+ const updateUserGoals = async (req, res) => {
+  // 1. Extract goal values from the request body
+  const { calorieTarget, proteinTarget, carbonLimit } = req.body;
+  
+  // It's good practice to validate that the inputs are numbers
+  if (isNaN(calorieTarget) || isNaN(proteinTarget) || isNaN(carbonLimit)) {
+    return res.status(400).json({ success: false, message: 'All goal values must be numbers.' });
+  }
+
+  try {
+    // 2. The user's ID is attached to the request by the auth middleware
+    const userId = req.user;
+
+    // 3. Find the user and update their goals
+    // The { new: true } option returns the document after the update has been applied.
+    const updatedUser = await userModel.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          'goals.calorieTarget': Number(calorieTarget), 
+          'goals.proteinTarget': Number(proteinTarget),
+          'goals.carbonLimit': Number(carbonLimit),
+        }
+      },
+      { new: true, runValidators: true }
+    ).select('-password'); // Exclude the password from the returned object
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // 4. Send a success response with the updated user data
+    res.status(200).json({
+      success: true,
+      message: 'Goals updated successfully!',
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    console.error('Error updating user goals:', error);
+    res.status(500).json({ success: false, message: 'Server error while updating goals.' });
+  }
+};
+export{register,login,updateUserGoals}
