@@ -1,29 +1,27 @@
-import mongoose,{Schema,model} from "mongoose"
-import userModel from "./user.model"
-const mealSchema=new Schema
-(
-{
-  user: {type:Schema.Types.ObjectId,ref:User},
+import { Schema, model } from 'mongoose';
 
-  items: [{
-    //todo rating 
-    foodName: String,
-    quantityGrams: Number,
-    nutrition: {
-    protein: Number,
-    carbs: Number,
-    fat: Number,
-    
-   
+const mealSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User', // Reference to your User model
+      required: true,
+    },
+    items: [{
+      foodName: { type: String, required: true },
+      quantityGrams: { type: Number, default: 100 }, // Assuming a default for now
+      calories: { type: Number, required: true },
+      nutrition: {
+        protein: { type: Number, required: true },
+        carbs: { type: Number, required: true },
+        fat: { type: Number, required: true },
+      },
+    }]
   },
-  calories: Number,
+  {
+    timestamps: true
+  }
+);
 
-  }]
-
-},  {
-    timestamps:true
-  })
-
-
-const mealModel=model("Meal",mealSchema)
- export default mealModel
+const mealModel = model("Meal", mealSchema);
+export default mealModel;

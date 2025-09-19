@@ -63,3 +63,4 @@ const addFootprint = (req, res) => {
 
 export { calculateFootprint, addFootprint };
 
+ 

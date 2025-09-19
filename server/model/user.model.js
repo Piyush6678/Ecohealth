@@ -20,6 +20,11 @@ const userSchema = new Schema({
     type: [Number],
     default: [0, 0, 0, 0, 0, 0, 0] // 7 elements, one per weekday
   },
+  weeklyProtein: {
+    // Stores protein (g) per day for current week (0=Sunday, ..., 6=Saturday)
+    type: [Number],
+    default: [0, 0, 0, 0, 0, 0, 0]
+  },
    weeklyCarbonFootprint: {
         // Stores total kg CO2e per day for the current week (0=Sunday, ..., 6=Saturday)
         type: [Number],

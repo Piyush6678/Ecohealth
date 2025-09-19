@@ -3,6 +3,7 @@ import * as fs from "node:fs";
 import path from "path";
 // Assuming 'prompt' from your config is for the image analysis
 import { prompt as imagePrompt } from "../config/prompt.js";
+import mealModel from "../model/food.model.js";
 
 /**
  * @description Analyzes a food item from an uploaded image.
@@ -74,3 +75,45 @@ export const getNutritionByName = async (req, res) => {
         res.status(500).send("Failed to get nutritional data.");
     }
 };
+
+
+
+
+
+
+export const addMeal = async (req, res) => {
+  try {
+    const { items } = req.body;
+
+    // Basic validation: ensure items array exists and is not empty
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: 'Meal items are required.' });
+    }
+
+    // Get user ID from the auth middleware
+    const userId = req.user;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Not authorized.' });
+    }
+
+    // Create a new meal document
+    const newMeal = new mealModel({
+      user: userId,
+      items: items
+    });
+
+    const savedMeal = await newMeal.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Meal successfully added to your progress!',
+      meal: savedMeal 
+    });
+
+  } catch (error) {
+    console.error('Error adding meal:', error);
+    res.status(500).json({ success: false, message: 'Server error while adding meal.' });
+  }
+};
+
+
