@@ -2,6 +2,7 @@ import { Router } from "express";
 import { login, register, updateUserGoals } from "../controllers/user.controller.js";
 import mealRouter from "./meal.routes.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { getAnalysisData } from "../controllers/analysze.controller.js";
 const userRouter=Router()
 
 
@@ -9,6 +10,7 @@ const userRouter=Router()
 userRouter.route("/register").post(register)// add weiight and goals 
 userRouter.route("/login").post(login)
 userRouter.route("/goals").put( authMiddleware ,updateUserGoals)
+userRouter.route("/analysis").get( authMiddleware ,getAnalysisData)
 
 
 userRouter.use("/meal",mealRouter)
